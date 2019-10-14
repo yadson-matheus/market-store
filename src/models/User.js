@@ -28,16 +28,19 @@ const UserSchema = new mongoose.Schema({
 
 // Hash password before save user.
 UserSchema.pre('save', async function(next) {
-    if (!this.isModified('password')) next();
-  
-    this.password = await bcrypt.hash(this.password, 10);
+    if (this.isModified('password'))
+        this.password = await bcrypt.hash(this.password, 10);
+    if (this.isModified())
+        this.modifiedAt = new Date();
+    
+    next();
 });
 
 // Change modifiedAt to current date before update user.
-UserSchema.pre('update', async function(next) {
-    if (!this.isModified()) next();
-    
-    await this.update({}, { $set: { modifiedAt: new Date() } });
+UserSchema.pre('findOneAndUpdate', async function(next) {
+    await this.findOneAndUpdate({}, { $set: { modifiedAt: new Date() } });
+
+    next();
 });
   
 UserSchema.methods = {

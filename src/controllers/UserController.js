@@ -22,7 +22,32 @@ module.exports = {
 
     // Modify existing user.
     async edit(req, res) {
-        return res.status(200).json({ userId: req.userId });
+        const { userId } = req;
+
+        User.findById(userId, (err, user) => {
+            if (err) return res.status(401).json({ error: 'User not found' });
+
+            const { email, password } = req.body;
+
+            user.email = email;
+            if (password) user.password = password;
+
+            user.save((err) => {
+                if (err) return res.status(401).json({ error: 'Unable to modify user' });
+                
+                user.password = undefined;
+
+                return res.status(200).json({ user });
+            });
+        });
+
+        /*User.findOneAndUpdate({ _id: userId }, req.body, function(err, user){
+            console.log(err);
+
+            if (err) return res.status(401).json({ error: 'Unable to modify user' });
+
+            return res.status(200).json({ user });
+        });*/
     },
 
     // Authorize user.
