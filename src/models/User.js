@@ -16,29 +16,27 @@ const UserSchema = new mongoose.Schema({
         required: [true, 'Password is required'],
         select: false
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    modifiedAt: {
-		type: Date, 
-        default: Date.now 
-	}
+    createdAt: { type: Date, default: Date.now },
+    modifiedAt: { type: Date, default: Date.now }
 });
 
 // Hash password before save user.
 UserSchema.pre('save', async function(next) {
-    if (this.isModified('password'))
-        this.password = await bcrypt.hash(this.password, 10);
-    if (this.isModified())
-        this.modifiedAt = new Date();
-    
-    next();
+    if (!this.isModified('password')) next();
+
+    this.password = await bcrypt.hash(this.password, 10);
 });
 
-// Change modifiedAt to current date before update user.
+// Hash password and change modification date before update.
 UserSchema.pre('findOneAndUpdate', async function(next) {
-    await this.findOneAndUpdate({}, { $set: { modifiedAt: new Date() } });
+    if (this.getUpdate().$set) {
+        const password = this.getUpdate().$set.password;
+
+        if (password)
+            this.getUpdate().$set.password = await bcrypt.hash(password, 10);
+        
+        this.getUpdate().$set.modifiedAt = new Date();
+    }
 
     next();
 });

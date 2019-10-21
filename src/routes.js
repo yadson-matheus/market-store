@@ -8,7 +8,7 @@ const UserController = require('./controllers/UserController');
 
 // User routes.
 routes.post('/authenticate', UserController.authenticate);
-routes.post('/user', UserController.add);
-routes.post('/user/:id', authMiddleware, UserController.edit);
+routes.post('/profile/create', UserController.add);
+routes.post('/profile/modify', authMiddleware, UserController.edit);
 
 module.exports = routes;

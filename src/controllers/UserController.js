@@ -20,34 +20,20 @@ module.exports = {
         });
     },
 
-    // Modify existing user.
+    // Modify authenticated user.
     async edit(req, res) {
         const { userId } = req;
+        const { email, password } = req.body;
 
-        User.findById(userId, (err, user) => {
-            if (err) return res.status(401).json({ error: 'User not found' });
+        // Corrigir inserção como 'null' quando a senha for vazia.
 
-            const { email, password } = req.body;
+        if (!email) return res.status(401).json({ error: 'Email field is required' });
 
-            user.email = email;
-            if (password) user.password = password;
-
-            user.save((err) => {
-                if (err) return res.status(401).json({ error: 'Unable to modify user' });
-                
-                user.password = undefined;
-
-                return res.status(200).json({ user });
-            });
-        });
-
-        /*User.findOneAndUpdate({ _id: userId }, req.body, function(err, user){
-            console.log(err);
-
+        await User.findOneAndUpdate({ _id: userId }, { email, password }, function(err, user){
             if (err) return res.status(401).json({ error: 'Unable to modify user' });
 
-            return res.status(200).json({ user });
-        });*/
+            return res.status(200).json({ success: 'User successfully modified' });
+        });
     },
 
     // Authorize user.
