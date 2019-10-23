@@ -11,7 +11,7 @@ module.exports = {
         if (await User.findOne({ email })) 
             return res.status(401).json({ error: 'User already exists' });
         
-        User.create(req.body, function (err, user) {
+        User.create(req.body, function(err, user) {
             if (err) return res.status(401).json({ error: 'Registration failed' });
 
             user.password = undefined;
@@ -25,11 +25,7 @@ module.exports = {
         const { userId } = req;
         const { email, password } = req.body;
 
-        // Corrigir inserção como 'null' quando a senha for vazia.
-
-        if (!email) return res.status(401).json({ error: 'Email field is required' });
-
-        await User.findOneAndUpdate({ _id: userId }, { email, password }, function(err, user){
+        await User.findOneAndUpdate({ _id: userId }, { email, password }, function(err) {
             if (err) return res.status(401).json({ error: 'Unable to modify user' });
 
             return res.status(200).json({ success: 'User successfully modified' });
